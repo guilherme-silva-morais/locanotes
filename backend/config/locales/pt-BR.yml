@@ -1,0 +1,12 @@
+"pt-BR":
+  errors:
+    messages:
+      blank: "não pode ficar em branco"
+      taken: "já está em uso"
+      invalid: "não é válido"
+      too_short:
+        one: "deve ter no mínimo 1 caractere"
+        other: "deve ter no mínimo %{count} caracteres"
+      too_long:
+        one: "deve ter no máximo 1 caractere"
+        other: "deve ter no máximo %{count} caracteres"
