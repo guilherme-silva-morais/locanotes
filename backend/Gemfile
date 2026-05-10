@@ -39,6 +39,9 @@ gem "jwt", "~> 2.10"
 # Authorization (per-record permission policies)
 gem "pundit", "~> 2.4"
 
+# Rate limiting and throttling at the rack layer
+gem "rack-attack", "~> 6.7"
+
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 

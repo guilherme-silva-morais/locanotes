@@ -14,5 +14,6 @@ en:
   auth:
     unauthorized: "Unauthorized"
     invalid_credentials: "Invalid email or password"
+    rate_limited: "Too many requests. Try again later."
   notes:
     invalid_cursor: "Invalid cursor"

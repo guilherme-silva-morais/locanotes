@@ -14,5 +14,6 @@
   auth:
     unauthorized: "Não autorizado"
     invalid_credentials: "Email ou senha incorretos"
+    rate_limited: "Muitas tentativas. Tente novamente em instantes."
   notes:
     invalid_cursor: "Cursor inválido"
