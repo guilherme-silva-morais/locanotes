@@ -1,10 +1,9 @@
 class ApplicationController < ActionController::API
-  # TODO(phase-2.4): re-include Authentication after rewriting concern for JWT/API-only.
-  # The generator-provided concern uses helper_method / cookies / redirect_to,
-  # which aren't available in ActionController::API.
-  # include Authentication
+  include Authentication
 
-  before_action :set_locale
+  # `set_locale` must run before `require_authentication` so unauthenticated
+  # responses are localized according to the request's Accept-Language.
+  prepend_before_action :set_locale
 
   private
 

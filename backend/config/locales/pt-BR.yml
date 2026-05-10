@@ -11,3 +11,5 @@
         one: "deve ter no máximo 1 caractere"
         other: "deve ter no máximo %{count} caracteres"
       weak_password: "deve conter ao menos uma letra e um número"
+  auth:
+    unauthorized: "Não autorizado"
