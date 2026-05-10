@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# Build artifacts
+dist/
+build/
+
+# Dependencies (also covered by subproject .gitignore — kept here as a safety net)
+node_modules/
