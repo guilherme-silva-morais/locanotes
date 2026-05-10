@@ -37,6 +37,57 @@ RSpec.describe "Api::V1::Notes", type: :request do
       get "/api/v1/notes", headers: auth_headers
       expect(JSON.parse(response.body)["data"]).to eq([])
     end
+
+    context "cursor pagination" do
+      it "paginates across pages without duplicates or skips" do
+        created = create_list(:note, 7, user: user)
+        expected_order = created.reverse.map(&:id)
+
+        collected = []
+        cursor = nil
+
+        3.times do
+          params = { limit: 3 }
+          params[:cursor] = cursor if cursor
+          get "/api/v1/notes", params: params, headers: auth_headers
+          body = JSON.parse(response.body)
+          collected.concat(body["data"].map { |n| n["id"] })
+          cursor = body["next_cursor"]
+          break unless body["has_more"]
+        end
+
+        expect(collected).to eq(expected_order)
+      end
+
+      it "returns has_more=false and next_cursor=nil on the last (only) page" do
+        create_list(:note, 3, user: user)
+        get "/api/v1/notes", params: { limit: 10 }, headers: auth_headers
+        body = JSON.parse(response.body)
+        expect(body["has_more"]).to be(false)
+        expect(body["next_cursor"]).to be_nil
+      end
+
+      it "returns 400 with localized error for a malformed cursor" do
+        get "/api/v1/notes", params: { cursor: "not base64 !!" }, headers: auth_headers
+        expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)["error"]).to eq("Cursor inválido")
+      end
+
+      it "returns the en error message when Accept-Language: en is sent" do
+        get "/api/v1/notes",
+            params: { cursor: "not base64 !!" },
+            headers: auth_headers.merge("Accept-Language" => "en")
+        expect(JSON.parse(response.body)["error"]).to eq("Invalid cursor")
+      end
+
+      it "respects a custom limit" do
+        create_list(:note, 5, user: user)
+        get "/api/v1/notes", params: { limit: 2 }, headers: auth_headers
+        body = JSON.parse(response.body)
+        expect(body["data"].size).to eq(2)
+        expect(body["has_more"]).to be(true)
+      end
+    end
   end
 
   describe "GET /api/v1/notes/:id" do

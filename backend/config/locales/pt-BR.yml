@@ -14,3 +14,5 @@
   auth:
     unauthorized: "Não autorizado"
     invalid_credentials: "Email ou senha incorretos"
+  notes:
+    invalid_cursor: "Cursor inválido"

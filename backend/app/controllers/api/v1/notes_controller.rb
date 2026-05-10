@@ -4,12 +4,19 @@ module Api
       before_action :load_note, only: %i[show update destroy]
 
       def index
-        notes = policy_scope(Note).recent_first
+        result = CursorPagination.new(
+          policy_scope(Note).recent_first,
+          cursor: params[:cursor],
+          limit: params[:limit]
+        ).call
+
         render json: {
-          data: notes.map { |n| serialize_note(n) },
-          next_cursor: nil,
-          has_more: false
+          data: result.records.map { |n| serialize_note(n) },
+          next_cursor: result.next_cursor,
+          has_more: result.has_more
         }
+      rescue CursorPagination::InvalidCursor
+        render json: { error: I18n.t("notes.invalid_cursor") }, status: :bad_request
       end
 
       def show
