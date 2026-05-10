@@ -1,10 +1,12 @@
 <script setup lang="ts">
-// Notes list, form, and pagination land in phases 3.5 and 3.6.
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <main class="notes-view">
-    <h1>Anotações</h1>
-    <p>List and form coming soon!</p>
+    <h1>{{ t('notes.title') }}</h1>
+    <p>{{ t('notes.placeholder') }}</p>
   </main>
 </template>
