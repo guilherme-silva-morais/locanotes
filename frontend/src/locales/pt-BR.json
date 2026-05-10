@@ -1,0 +1,31 @@
+{
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "email_label": "Email",
+      "password_label": "Senha",
+      "submit": "Entrar",
+      "submitting": "Entrando…",
+      "no_account": "Não tem conta?",
+      "register_link": "Cadastre-se"
+    },
+    "register": {
+      "title": "Cadastro",
+      "email_label": "Email",
+      "password_label": "Senha",
+      "password_confirmation_label": "Confirmar senha",
+      "submit": "Cadastrar",
+      "submitting": "Cadastrando…",
+      "have_account": "Já tem conta?",
+      "login_link": "Entrar"
+    },
+    "errors": {
+      "network": "Erro de conexão. Tente novamente.",
+      "rate_limited": "Muitas tentativas. Tente novamente em instantes."
+    }
+  },
+  "notes": {
+    "title": "Anotações",
+    "placeholder": "Lista e formulário vêm em breve."
+  }
+}

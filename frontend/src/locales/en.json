@@ -1,0 +1,31 @@
+{
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "email_label": "Email",
+      "password_label": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "no_account": "Don't have an account?",
+      "register_link": "Sign up"
+    },
+    "register": {
+      "title": "Sign up",
+      "email_label": "Email",
+      "password_label": "Password",
+      "password_confirmation_label": "Confirm password",
+      "submit": "Sign up",
+      "submitting": "Signing up…",
+      "have_account": "Already have an account?",
+      "login_link": "Sign in"
+    },
+    "errors": {
+      "network": "Connection error. Please try again.",
+      "rate_limited": "Too many attempts. Try again in a moment."
+    }
+  },
+  "notes": {
+    "title": "Notes",
+    "placeholder": "List and form coming soon."
+  }
+}
