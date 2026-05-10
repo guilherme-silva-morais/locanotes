@@ -22,6 +22,16 @@ RSpec.describe User, type: :model do
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:email_address]).to include(I18n.t("errors.messages.taken"))
     end
+
+    it "rejects emails with non-ASCII characters in the local part" do
+      # URI::MailTo::EMAIL_REGEXP allows only ASCII; IDN/unicode would need
+      # punycode normalization upstream, which we don't do.
+      expect(build(:user, email_address: "üser@example.com")).not_to be_valid
+    end
+
+    it "rejects emails with non-ASCII characters in the domain" do
+      expect(build(:user, email_address: "user@éxample.com")).not_to be_valid
+    end
   end
 
   describe "email normalization" do
@@ -57,6 +67,24 @@ RSpec.describe User, type: :model do
 
     it "is required on create" do
       user = build(:user, password: nil)
+      expect(user).not_to be_valid
+      expect(user.errors[:password]).to be_present
+    end
+
+    it "accepts whitespace inside the password (entropy is preserved)" do
+      expect(build(:user, password: "Ab 12345")).to be_valid
+    end
+
+    it "accepts password at the bcrypt boundary (72 characters)" do
+      password = "a" + ("1" * 71)
+      expect(password.length).to eq(72)
+      expect(build(:user, password: password)).to be_valid
+    end
+
+    it "rejects password exceeding the bcrypt limit (73 characters)" do
+      password = "a" + ("1" * 72)
+      expect(password.length).to eq(73)
+      user = build(:user, password: password)
       expect(user).not_to be_valid
       expect(user.errors[:password]).to be_present
     end

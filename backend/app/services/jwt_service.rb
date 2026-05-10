@@ -28,8 +28,11 @@ class JwtService
 
     def decode(token, expected_type:)
       payload, _header = JWT.decode(token, secret, true, algorithm: ALGORITHM)
+
+      raise InvalidToken, "missing exp claim" if payload["exp"].blank?
+      raise InvalidToken, "missing jti claim" if payload["jti"].blank?
+      raise InvalidToken, "missing sub claim" if payload["sub"].blank?
       raise InvalidToken, "wrong token type" unless payload["type"] == expected_type
-      raise InvalidToken, "missing jti or sub" if payload["jti"].blank? || payload["sub"].blank?
 
       payload
     rescue JWT::ExpiredSignature

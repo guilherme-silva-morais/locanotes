@@ -65,4 +65,12 @@ RSpec.describe "Locale negotiation via Accept-Language", type: :request do
   it "returns nil for an empty header" do
     expect(parse_locale("")).to be_nil
   end
+
+  it "matches locale tags case-sensitively (RFC 5646 recommends canonical casing)" do
+    # Brief lists pt-BR (with that exact casing); a sender using PT-br is
+    # technically equivalent per RFC 5646, but we don't normalize. Documenting
+    # current behavior so a regression toward looser matching is visible.
+    expect(parse_locale("PT-br")).to be_nil
+    expect(parse_locale("EN")).to be_nil
+  end
 end

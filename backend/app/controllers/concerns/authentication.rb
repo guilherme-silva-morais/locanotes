@@ -45,9 +45,10 @@ module Authentication
     def bearer_token
       header = request.headers["Authorization"]
       return nil if header.blank?
-      return nil unless header.start_with?("Bearer ")
 
-      header.split(" ", 2).last
+      # RFC 7235: auth scheme is case-insensitive.
+      match = header.match(/\ABearer +(.+)\z/i)
+      match && match[1]
     end
 
     def render_unauthorized

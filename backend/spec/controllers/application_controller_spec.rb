@@ -51,6 +51,12 @@ RSpec.describe ApplicationController, type: :controller do
       expect(response).to have_http_status(:unauthorized)
     end
 
+    it "returns 401 when Authorization is 'Bearer ' with empty token" do
+      request.headers["Authorization"] = "Bearer "
+      get :index
+      expect(response).to have_http_status(:unauthorized)
+    end
+
     it "returns 401 when token is malformed" do
       request.headers["Authorization"] = "Bearer not.a.real.token"
       get :index
@@ -101,6 +107,12 @@ RSpec.describe ApplicationController, type: :controller do
       body = JSON.parse(response.body)
       expect(body["user_id"]).to eq(user.id)
       expect(body["session_id"]).to eq(user_session.id)
+    end
+
+    it "accepts a lowercase 'bearer' scheme (RFC 7235 case-insensitive)" do
+      request.headers["Authorization"] = "bearer #{access_token}"
+      get :index
+      expect(response).to have_http_status(:ok)
     end
   end
 

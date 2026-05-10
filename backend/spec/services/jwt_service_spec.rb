@@ -91,7 +91,73 @@ RSpec.describe JwtService do
       )
 
       expect { described_class.decode(orphan_token, expected_type: "access") }
-        .to raise_error(JwtService::InvalidToken, /missing jti or sub/)
+        .to raise_error(JwtService::InvalidToken, /missing jti/)
+    end
+
+    it "raises InvalidToken when sub is missing from the payload" do
+      orphan_token = JWT.encode(
+        { jti: "x", type: "access", exp: 1.hour.from_now.to_i },
+        ENV.fetch("JWT_SECRET"),
+        described_class::ALGORITHM
+      )
+
+      expect { described_class.decode(orphan_token, expected_type: "access") }
+        .to raise_error(JwtService::InvalidToken, /missing sub/)
+    end
+
+    it "raises InvalidToken when exp is missing (tokens cannot be eternal)" do
+      eternal_token = JWT.encode(
+        { sub: session.user_id, jti: session.id.to_s, type: "access" },
+        ENV.fetch("JWT_SECRET"),
+        described_class::ALGORITHM
+      )
+
+      expect { described_class.decode(eternal_token, expected_type: "access") }
+        .to raise_error(JwtService::InvalidToken, /missing exp/)
+    end
+
+    it "rejects tokens that use the 'none' algorithm (alg=none attack)" do
+      malicious = JWT.encode(
+        { sub: session.user_id, jti: session.id.to_s, type: "access", exp: 1.hour.from_now.to_i },
+        nil,
+        "none"
+      )
+
+      expect { described_class.decode(malicious, expected_type: "access") }
+        .to raise_error(JwtService::InvalidToken)
+    end
+
+    it "rejects tokens signed with a different algorithm (HS512 instead of HS256)" do
+      hs512_token = JWT.encode(
+        { sub: session.user_id, jti: session.id.to_s, type: "access", exp: 1.hour.from_now.to_i },
+        ENV.fetch("JWT_SECRET"),
+        "HS512"
+      )
+
+      expect { described_class.decode(hs512_token, expected_type: "access") }
+        .to raise_error(JwtService::InvalidToken)
+    end
+  end
+
+  describe "concurrent sessions are independently revocable" do
+    it "destroying one session does not invalidate tokens from another session of the same user" do
+      user = create(:user)
+      device_a = create(:session, user: user, user_agent: "Device A")
+      device_b = create(:session, user: user, user_agent: "Device B")
+
+      token_a = described_class.encode_access(device_a)
+      token_b = described_class.encode_access(device_b)
+
+      device_a.destroy
+
+      # Token A still passes JWT validation, but the Session lookup returns nil
+      # (caller treats nil as revoked — the Authentication concern returns 401).
+      payload_a = described_class.decode(token_a, expected_type: "access")
+      expect(Session.find_by(id: payload_a["jti"])).to be_nil
+
+      # Token B still resolves to the live Session, unaffected.
+      payload_b = described_class.decode(token_b, expected_type: "access")
+      expect(Session.find_by(id: payload_b["jti"])).to eq(device_b)
     end
   end
 end
