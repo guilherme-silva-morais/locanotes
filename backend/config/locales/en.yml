@@ -13,3 +13,4 @@ en:
       weak_password: "must contain at least one letter and one digit"
   auth:
     unauthorized: "Unauthorized"
+    invalid_credentials: "Invalid email or password"
