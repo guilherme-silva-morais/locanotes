@@ -36,6 +36,9 @@ gem "net-imap", ">= 0.5.14"
 # JWT encode/decode for Bearer-token authentication
 gem "jwt", "~> 2.10"
 
+# Authorization (per-record permission policies)
+gem "pundit", "~> 2.4"
+
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 

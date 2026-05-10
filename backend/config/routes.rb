@@ -7,6 +7,8 @@ Rails.application.routes.draw do
         post   :refresh,  to: "sessions#refresh"
         delete :logout,   to: "sessions#destroy"
       end
+
+      resources :notes, only: %i[index show create update destroy]
     end
   end
 
