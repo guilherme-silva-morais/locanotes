@@ -33,6 +33,9 @@ gem "image_processing", "~> 1.2"
 gem "erb", ">= 4.0.4.1"
 gem "net-imap", ">= 0.5.14"
 
+# JWT encode/decode for Bearer-token authentication
+gem "jwt", "~> 2.10"
+
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 
