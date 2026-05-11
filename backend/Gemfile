@@ -67,5 +67,5 @@ end
 
 group :test do
   # Shoulda Matchers for concise model spec assertions
-  gem "shoulda-matchers", "~> 6.4"
+  gem "shoulda-matchers", "~> 7.0"
 end
