@@ -113,6 +113,7 @@ onMounted(() => fetchPage())
 
 <style scoped>
 .notes-view {
+  width: 100%;
   max-width: 64rem;
   margin: var(--space-8) auto;
   padding: 0 var(--space-4);
@@ -122,6 +123,9 @@ onMounted(() => fetchPage())
 }
 
 .card {
+  /* `width: 100%` forces the card to fill the column even when the content
+     inside is small — without it, the card shrinks to fit. */
+  width: 100%;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);

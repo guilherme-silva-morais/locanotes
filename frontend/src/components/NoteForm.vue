@@ -145,6 +145,9 @@ function handleError(err: unknown) {
 
 <style scoped>
 .card {
+  /* Fill the available column width — without this the card shrinks to fit
+     its content when the form is empty. */
+  width: 100%;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
