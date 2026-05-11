@@ -25,10 +25,16 @@
     "errors": {
       "network": "Connection error. Please try again.",
       "rate_limited": "Too many attempts. Try again in a moment."
-    }
+    },
+    "logout": "Sign out"
   },
   "notes": {
     "title": "Notes",
-    "placeholder": "List and form coming soon."
+    "loading": "Loading…",
+    "empty": "You don't have any notes yet.",
+    "load_more": "Load more",
+    "errors": {
+      "load": "Failed to load notes. Please try again."
+    }
   }
 }

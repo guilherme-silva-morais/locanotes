@@ -25,10 +25,16 @@
     "errors": {
       "network": "Erro de conexão. Tente novamente.",
       "rate_limited": "Muitas tentativas. Tente novamente em instantes."
-    }
+    },
+    "logout": "Sair"
   },
   "notes": {
     "title": "Anotações",
-    "placeholder": "Lista e formulário vêm em breve."
+    "loading": "Carregando…",
+    "empty": "Você ainda não tem anotações.",
+    "load_more": "Carregar mais",
+    "errors": {
+      "load": "Erro ao carregar anotações. Tente novamente."
+    }
   }
 }
