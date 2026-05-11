@@ -4,11 +4,35 @@ import en from './locales/en.json'
 
 export type AppLocale = 'pt-BR' | 'en'
 
+export const SUPPORTED_LOCALES: ReadonlyArray<{ code: AppLocale; label: string }> = [
+  { code: 'pt-BR', label: 'Português (BR)' },
+  { code: 'en', label: 'English' },
+]
+
+const LOCALE_STORAGE_KEY = 'locanotes:locale'
+
 export function detectLocale(): AppLocale {
+  // 1) Explicit user choice persisted from a previous session.
+  try {
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
+    if (stored === 'pt-BR' || stored === 'en') return stored
+  } catch {
+    // localStorage may be unavailable (private mode); fall through.
+  }
+
+  // 2) Best match against navigator.language.
   if (typeof navigator === 'undefined') return 'pt-BR'
   const tag = navigator.language.toLowerCase()
   if (tag.startsWith('pt')) return 'pt-BR'
   return 'en'
+}
+
+export function persistLocale(locale: AppLocale): void {
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+  } catch {
+    // ignore — localStorage unavailable
+  }
 }
 
 // Single i18n instance, used by main.ts and exported for direct access in

@@ -1,4 +1,7 @@
 {
+  "common": {
+    "language": "Idioma"
+  },
   "auth": {
     "login": {
       "title": "Entrar",
