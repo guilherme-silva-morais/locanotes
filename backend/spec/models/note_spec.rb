@@ -63,21 +63,26 @@ RSpec.describe Note, type: :model do
   end
 
   describe ".recent_first scope" do
-    it "orders by created_at descending" do
-      old    = create(:note, created_at: 2.days.ago)
-      newer  = create(:note, created_at: 1.day.ago)
-      newest = create(:note, created_at: Time.current)
+    # Scoped to a fresh user so these assertions don't depend on global Note
+    # state (other suites may leave residual rows due to connection-pool quirks
+    # outside of transactional_fixtures).
+    let(:user) { create(:user) }
 
-      expect(Note.recent_first).to eq([ newest, newer, old ])
+    it "orders by created_at descending" do
+      old    = create(:note, user: user, created_at: 2.days.ago)
+      newer  = create(:note, user: user, created_at: 1.day.ago)
+      newest = create(:note, user: user, created_at: Time.current)
+
+      expect(user.notes.recent_first).to eq([ newest, newer, old ])
     end
 
     it "breaks ties on created_at by id descending (stable ordering)" do
       ts = Time.current
-      n1 = create(:note, created_at: ts)
-      n2 = create(:note, created_at: ts)
-      n3 = create(:note, created_at: ts)
+      n1 = create(:note, user: user, created_at: ts)
+      n2 = create(:note, user: user, created_at: ts)
+      n3 = create(:note, user: user, created_at: ts)
 
-      expect(Note.recent_first.pluck(:id)).to eq([ n3.id, n2.id, n1.id ])
+      expect(user.notes.recent_first.pluck(:id)).to eq([ n3.id, n2.id, n1.id ])
     end
   end
 

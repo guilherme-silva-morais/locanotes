@@ -10,7 +10,13 @@
       too_long:
         one: "deve ter no máximo 1 caractere"
         other: "deve ter no máximo %{count} caracteres"
+      confirmation: "não confere com %{attribute}"
       weak_password: "deve conter ao menos uma letra e um número"
+  activerecord:
+    attributes:
+      user:
+        password: "Senha"
+        email_address: "E-mail"
   auth:
     unauthorized: "Não autorizado"
     invalid_credentials: "Email ou senha incorretos"
