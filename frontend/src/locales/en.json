@@ -31,7 +31,8 @@
       "network": "Connection error. Please try again.",
       "rate_limited": "Too many attempts. Try again in a moment."
     },
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "confirm_logout": "Are you sure you want to sign out?"
   },
   "notes": {
     "title": "Notes",

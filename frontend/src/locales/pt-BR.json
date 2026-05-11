@@ -31,7 +31,8 @@
       "network": "Erro de conexão. Tente novamente.",
       "rate_limited": "Muitas tentativas. Tente novamente em instantes."
     },
-    "logout": "Sair"
+    "logout": "Sair",
+    "confirm_logout": "Tem certeza que deseja sair?"
   },
   "notes": {
     "title": "Anotações",

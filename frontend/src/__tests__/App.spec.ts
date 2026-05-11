@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { http, HttpResponse } from 'msw'
 import App from '@/App.vue'
@@ -34,7 +34,7 @@ describe('App header', () => {
     expect(wrapper.find('[data-testid="logout"]').exists()).toBe(true)
   })
 
-  it('logs out and redirects to /login when the logout button is clicked', async () => {
+  it('logs out and redirects to /login when the user confirms the dialog', async () => {
     const auth = useAuthStore()
     auth.setAuth({ user: userPayload, tokens: tokensPayload })
 
@@ -45,6 +45,8 @@ describe('App header', () => {
       http.delete(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })),
     )
 
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
     const { wrapper, router } = await mountView(App, {}, '/notes')
     await flushPromises()
     await wrapper.find('[data-testid="logout"]').trigger('click')
@@ -52,6 +54,33 @@ describe('App header', () => {
 
     expect(useAuthStore().isAuthenticated).toBe(false)
     expect(router.currentRoute.value.path).toBe('/login')
+  })
+
+  it('does NOT log out when the user cancels the confirm dialog', async () => {
+    const auth = useAuthStore()
+    auth.setAuth({ user: userPayload, tokens: tokensPayload })
+
+    let deleteCalled = false
+    mswServer.use(
+      http.get(`${API}/notes`, () =>
+        HttpResponse.json({ data: [], next_cursor: null, has_more: false }),
+      ),
+      http.delete(`${API}/auth/logout`, () => {
+        deleteCalled = true
+        return new HttpResponse(null, { status: 204 })
+      }),
+    )
+
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+
+    const { wrapper, router } = await mountView(App, {}, '/notes')
+    await flushPromises()
+    await wrapper.find('[data-testid="logout"]').trigger('click')
+    await flushPromises()
+
+    expect(deleteCalled).toBe(false)
+    expect(useAuthStore().isAuthenticated).toBe(true)
+    expect(router.currentRoute.value.path).toBe('/notes')
   })
 
   it('renders the LanguageSwitcher in the header', async () => {
