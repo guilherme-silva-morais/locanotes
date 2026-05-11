@@ -71,135 +71,168 @@ function handleError(err: unknown) {
 
 <template>
   <main class="auth-view">
-    <h1>{{ t('auth.register.title') }}</h1>
+    <section class="auth-card">
+      <h1 class="auth-title">{{ t('auth.register.title') }}</h1>
 
-    <form class="auth-form" novalidate @submit.prevent="onSubmit">
-      <div class="field">
-        <label for="register-email">{{ t('auth.register.email_label') }}</label>
-        <input
-          id="register-email"
-          v-model="email"
-          data-testid="email"
-          type="email"
-          autocomplete="email"
-          autofocus
-          required
-          maxlength="200"
-        />
-        <p v-if="fieldErrors.email_address" data-testid="email-error" class="error">
-          {{ fieldErrors.email_address.join(', ') }}
+      <form class="auth-form" novalidate @submit.prevent="onSubmit">
+        <div class="field">
+          <label for="register-email">{{ t('auth.register.email_label') }}</label>
+          <input
+            id="register-email"
+            v-model="email"
+            data-testid="email"
+            type="email"
+            autocomplete="email"
+            autofocus
+            required
+            maxlength="200"
+          />
+          <p v-if="fieldErrors.email_address" data-testid="email-error" class="error">
+            {{ fieldErrors.email_address.join(', ') }}
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="register-password">{{ t('auth.register.password_label') }}</label>
+          <input
+            id="register-password"
+            v-model="password"
+            data-testid="password"
+            type="password"
+            autocomplete="new-password"
+            required
+            maxlength="72"
+          />
+          <p v-if="fieldErrors.password" data-testid="password-error" class="error">
+            {{ fieldErrors.password.join(', ') }}
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="register-password-confirmation">
+            {{ t('auth.register.password_confirmation_label') }}
+          </label>
+          <input
+            id="register-password-confirmation"
+            v-model="passwordConfirmation"
+            data-testid="password-confirmation"
+            type="password"
+            autocomplete="new-password"
+            required
+            maxlength="72"
+          />
+          <p
+            v-if="fieldErrors.password_confirmation"
+            data-testid="password-confirmation-error"
+            class="error"
+          >
+            {{ fieldErrors.password_confirmation.join(', ') }}
+          </p>
+        </div>
+
+        <p v-if="formError" data-testid="form-error" class="error" role="alert">
+          {{ formError }}
         </p>
-      </div>
 
-      <div class="field">
-        <label for="register-password">{{ t('auth.register.password_label') }}</label>
-        <input
-          id="register-password"
-          v-model="password"
-          data-testid="password"
-          type="password"
-          autocomplete="new-password"
-          required
-          maxlength="72"
-        />
-        <p v-if="fieldErrors.password" data-testid="password-error" class="error">
-          {{ fieldErrors.password.join(', ') }}
+        <button data-testid="submit" type="submit" class="primary-button" :disabled="!canSubmit">
+          {{ loading ? t('auth.register.submitting') : t('auth.register.submit') }}
+        </button>
+
+        <p class="link-row">
+          {{ t('auth.register.have_account') }}
+          <RouterLink to="/login">{{ t('auth.register.login_link') }}</RouterLink>
         </p>
-      </div>
-
-      <div class="field">
-        <label for="register-password-confirmation">
-          {{ t('auth.register.password_confirmation_label') }}
-        </label>
-        <input
-          id="register-password-confirmation"
-          v-model="passwordConfirmation"
-          data-testid="password-confirmation"
-          type="password"
-          autocomplete="new-password"
-          required
-          maxlength="72"
-        />
-        <p
-          v-if="fieldErrors.password_confirmation"
-          data-testid="password-confirmation-error"
-          class="error"
-        >
-          {{ fieldErrors.password_confirmation.join(', ') }}
-        </p>
-      </div>
-
-      <p v-if="formError" data-testid="form-error" class="error" role="alert">
-        {{ formError }}
-      </p>
-
-      <button data-testid="submit" type="submit" :disabled="!canSubmit">
-        {{ loading ? t('auth.register.submitting') : t('auth.register.submit') }}
-      </button>
-
-      <p class="link-row">
-        {{ t('auth.register.have_account') }}
-        <RouterLink to="/login">{{ t('auth.register.login_link') }}</RouterLink>
-      </p>
-    </form>
+      </form>
+    </section>
   </main>
 </template>
 
 <style scoped>
 .auth-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-10) var(--space-4);
+  flex: 1;
+}
+
+.auth-card {
+  width: 100%;
   max-width: 22rem;
-  margin: 4rem auto;
-  padding: 0 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+.auth-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-5);
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 label {
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
+  color: var(--color-text-muted);
 }
 
 input {
-  padding: 0.5rem 0.65rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-input-bg);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast);
 }
 
-button {
-  padding: 0.6rem;
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.15);
+}
+
+.primary-button {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
   border: 0;
-  background: #2d6cdf;
-  color: white;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background var(--transition-fast);
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.primary-button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.primary-button:disabled {
+  opacity: 0.55;
 }
 
 .error {
-  color: #b00020;
-  font-size: 0.85rem;
-  margin: 0.1rem 0 0;
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin: var(--space-1) 0 0;
 }
 
 .link-row {
   text-align: center;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   margin: 0;
+  color: var(--color-text-muted);
 }
 </style>

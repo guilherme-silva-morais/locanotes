@@ -1,6 +1,10 @@
 {
   "common": {
-    "language": "Language"
+    "language": "Language",
+    "theme": "Theme",
+    "theme_system": "System",
+    "theme_light": "Light",
+    "theme_dark": "Dark"
   },
   "auth": {
     "login": {
@@ -35,6 +39,16 @@
     "load_more": "Load more",
     "errors": {
       "load": "Failed to load notes. Please try again."
+    },
+    "form": {
+      "heading": "New note",
+      "title_label": "Title",
+      "title_placeholder": "Type a title",
+      "content_label": "Content",
+      "content_placeholder": "Type the content…",
+      "submit": "Save",
+      "submitting": "Saving…",
+      "title_required": "Title is required"
     }
   }
 }

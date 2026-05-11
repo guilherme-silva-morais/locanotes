@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/stores/auth'
 import { notesApi } from '@/api/notes'
+import NoteForm from '@/components/NoteForm.vue'
 import type { Note } from '@/types/api'
 
 const { t } = useI18n()
-const auth = useAuthStore()
-const router = useRouter()
 
 const notes = ref<Note[]>([])
 const nextCursor = ref<string | null>(null)
@@ -40,9 +37,8 @@ async function loadMore() {
   await fetchPage(nextCursor.value)
 }
 
-async function logout() {
-  await auth.logout()
-  await router.push('/login')
+function onNoteCreated(note: Note) {
+  notes.value.unshift(note)
 }
 
 onMounted(() => fetchPage())
@@ -50,125 +46,137 @@ onMounted(() => fetchPage())
 
 <template>
   <main class="notes-view">
-    <header class="notes-header">
-      <span class="user-email">{{ auth.user?.email_address }}</span>
-      <button data-testid="logout" type="button" class="link-button" @click="logout">
-        {{ t('auth.logout') }}
+    <NoteForm @note-created="onNoteCreated" />
+
+    <section class="card">
+      <h2 class="section-heading">{{ t('notes.title') }}</h2>
+
+      <p v-if="loading && notes.length === 0" data-testid="loading" class="muted">
+        {{ t('notes.loading') }}
+      </p>
+
+      <p v-else-if="error" data-testid="load-error" class="error" role="alert">
+        {{ error }}
+      </p>
+
+      <p v-else-if="notes.length === 0" data-testid="empty" class="muted empty">
+        {{ t('notes.empty') }}
+      </p>
+
+      <ul v-else class="notes-list" data-testid="notes-list">
+        <li v-for="note in notes" :key="note.id" class="note-item" data-testid="note-item">
+          <h3>{{ note.title }}</h3>
+          <p v-if="note.content">{{ note.content }}</p>
+        </li>
+      </ul>
+
+      <button
+        v-if="hasMore"
+        data-testid="load-more"
+        type="button"
+        class="load-more"
+        :disabled="loading"
+        @click="loadMore"
+      >
+        {{ loading ? t('notes.loading') : t('notes.load_more') }}
       </button>
-    </header>
-
-    <h1>{{ t('notes.title') }}</h1>
-
-    <p v-if="loading && notes.length === 0" data-testid="loading">
-      {{ t('notes.loading') }}
-    </p>
-
-    <p v-else-if="error" data-testid="load-error" class="error" role="alert">
-      {{ error }}
-    </p>
-
-    <p v-else-if="notes.length === 0" data-testid="empty" class="empty">
-      {{ t('notes.empty') }}
-    </p>
-
-    <ul v-else class="notes-list" data-testid="notes-list">
-      <li v-for="note in notes" :key="note.id" class="note-item" data-testid="note-item">
-        <h3>{{ note.title }}</h3>
-        <p v-if="note.content">{{ note.content }}</p>
-      </li>
-    </ul>
-
-    <button
-      v-if="hasMore"
-      data-testid="load-more"
-      type="button"
-      class="load-more"
-      :disabled="loading"
-      @click="loadMore"
-    >
-      {{ loading ? t('notes.loading') : t('notes.load_more') }}
-    </button>
+    </section>
   </main>
 </template>
 
 <style scoped>
 .notes-view {
-  max-width: 42rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-.notes-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.user-email {
-  opacity: 0.75;
-}
-
-.link-button {
-  background: none;
-  border: 0;
-  color: #4a8cff;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-
-.notes-list {
-  list-style: none;
-  padding: 0;
+  max-width: 40rem;
+  margin: var(--space-8) auto;
+  padding: 0 var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-6);
 }
 
-.note-item {
-  border: 1px solid #2a2a2a;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+  overflow: hidden;
 }
 
-.note-item h3 {
-  margin: 0 0 0.25rem;
-  font-size: 1rem;
+.section-heading {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.note-item p {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.85;
-  white-space: pre-wrap;
+.muted {
+  color: var(--color-text-muted);
 }
 
 .empty {
-  opacity: 0.65;
   text-align: center;
-  padding: 2rem 0;
+  padding: var(--space-6) 0;
 }
 
 .error {
-  color: #ff6b6b;
+  color: var(--color-danger);
+}
+
+.notes-list {
+  list-style: disc;
+  padding-left: var(--space-6);
+  margin: 0;
+}
+
+.note-item {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.note-item:last-child {
+  border-bottom: 0;
+}
+
+.note-item h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  /* Break very long words / unbreakable strings so they wrap inside the card. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.note-item p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .load-more {
-  margin-top: 1rem;
+  margin-top: var(--space-5);
   width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #444;
-  background: transparent;
-  color: inherit;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.load-more:hover:not(:disabled) {
+  background: var(--color-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .load-more:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  opacity: 0.55;
 }
 </style>

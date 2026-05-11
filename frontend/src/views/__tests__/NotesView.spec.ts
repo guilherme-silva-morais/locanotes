@@ -159,36 +159,4 @@ describe('NotesView', () => {
     expect(wrapper.find('[data-testid="load-error"]').exists()).toBe(true)
   })
 
-  it('displays the current user email in the header', async () => {
-    authenticate()
-    mswServer.use(
-      http.get(`${API}/notes`, () =>
-        HttpResponse.json({ data: [], next_cursor: null, has_more: false }),
-      ),
-    )
-
-    const { wrapper } = await mountView(NotesView, {}, '/notes')
-    await flushPromises()
-
-    expect(wrapper.find('.user-email').text()).toBe('alice@example.com')
-  })
-
-  it('logs out the user and redirects to /login when the logout button is clicked', async () => {
-    authenticate()
-    mswServer.use(
-      http.get(`${API}/notes`, () =>
-        HttpResponse.json({ data: [], next_cursor: null, has_more: false }),
-      ),
-      http.delete(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })),
-    )
-
-    const { wrapper, router } = await mountView(NotesView, {}, '/notes')
-    await flushPromises()
-
-    await wrapper.find('[data-testid="logout"]').trigger('click')
-    await flushPromises()
-
-    expect(useAuthStore().isAuthenticated).toBe(false)
-    expect(router.currentRoute.value.path).toBe('/login')
-  })
 })

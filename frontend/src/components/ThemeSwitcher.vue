@@ -1,30 +1,28 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useLocale } from '@/composables/useLocale'
-import type { AppLocale } from '@/i18n'
+import { useTheme, type ThemePref } from '@/composables/useTheme'
 
 const { t } = useI18n()
-const { current, setLocale, options } = useLocale()
+const { theme, setTheme } = useTheme()
 
 function onChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  setLocale(target.value as AppLocale)
+  setTheme((event.target as HTMLSelectElement).value as ThemePref)
 }
 </script>
 
 <template>
-  <label class="language-switcher">
-    <span class="sr-only">{{ t('common.language') }}</span>
-    <select :value="current" data-testid="language-switcher" @change="onChange">
-      <option v-for="opt in options" :key="opt.code" :value="opt.code">
-        {{ opt.label }}
-      </option>
+  <label class="theme-switcher">
+    <span class="sr-only">{{ t('common.theme') }}</span>
+    <select :value="theme" data-testid="theme-switcher" @change="onChange">
+      <option value="system">{{ t('common.theme_system') }}</option>
+      <option value="light">{{ t('common.theme_light') }}</option>
+      <option value="dark">{{ t('common.theme_dark') }}</option>
     </select>
   </label>
 </template>
 
 <style scoped>
-.language-switcher select {
+.theme-switcher select {
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--color-border-strong);
   background: var(--color-surface);
@@ -35,7 +33,7 @@ function onChange(event: Event) {
   cursor: pointer;
 }
 
-.language-switcher select:hover {
+.theme-switcher select:hover {
   border-color: var(--color-primary);
 }
 

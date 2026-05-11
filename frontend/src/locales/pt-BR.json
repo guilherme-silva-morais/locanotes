@@ -1,6 +1,10 @@
 {
   "common": {
-    "language": "Idioma"
+    "language": "Idioma",
+    "theme": "Tema",
+    "theme_system": "Sistema",
+    "theme_light": "Claro",
+    "theme_dark": "Escuro"
   },
   "auth": {
     "login": {
@@ -35,6 +39,16 @@
     "load_more": "Carregar mais",
     "errors": {
       "load": "Erro ao carregar anotações. Tente novamente."
+    },
+    "form": {
+      "heading": "Nova anotação",
+      "title_label": "Título",
+      "title_placeholder": "Digite o título",
+      "content_label": "Conteúdo",
+      "content_placeholder": "Digite o conteúdo…",
+      "submit": "Salvar",
+      "submitting": "Salvando…",
+      "title_required": "Título é obrigatório"
     }
   }
 }
