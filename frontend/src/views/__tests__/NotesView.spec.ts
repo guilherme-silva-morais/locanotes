@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { http, HttpResponse } from 'msw'
 import NotesView from '@/views/NotesView.vue'
@@ -159,4 +159,90 @@ describe('NotesView', () => {
     expect(wrapper.find('[data-testid="load-error"]').exists()).toBe(true)
   })
 
+  describe('deleting a note', () => {
+    it('removes the note from the list after a successful DELETE', async () => {
+      authenticate()
+      let deleteCalled = false
+      mswServer.use(
+        http.get(`${API}/notes`, () =>
+          HttpResponse.json({
+            data: [noteFixture(1, { title: 'Keep' }), noteFixture(2, { title: 'Delete me' })],
+            next_cursor: null,
+            has_more: false,
+          }),
+        ),
+        http.delete(`${API}/notes/2`, () => {
+          deleteCalled = true
+          return new HttpResponse(null, { status: 204 })
+        }),
+      )
+
+      vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      const { wrapper } = await mountView(NotesView, {}, '/notes')
+      await flushPromises()
+      expect(wrapper.findAll('[data-testid="note-item"]')).toHaveLength(2)
+
+      await wrapper.find('[data-testid="delete-2"]').trigger('click')
+      await flushPromises()
+
+      expect(deleteCalled).toBe(true)
+      const remaining = wrapper.findAll('[data-testid="note-item"]')
+      expect(remaining).toHaveLength(1)
+      expect(remaining.map((i) => i.find('h3').text())).toEqual(['Keep'])
+    })
+
+    it('does nothing when the user cancels the confirm dialog', async () => {
+      authenticate()
+      let deleteCalled = false
+      mswServer.use(
+        http.get(`${API}/notes`, () =>
+          HttpResponse.json({
+            data: [noteFixture(1)],
+            next_cursor: null,
+            has_more: false,
+          }),
+        ),
+        http.delete(`${API}/notes/1`, () => {
+          deleteCalled = true
+          return new HttpResponse(null, { status: 204 })
+        }),
+      )
+
+      vi.spyOn(window, 'confirm').mockReturnValue(false)
+
+      const { wrapper } = await mountView(NotesView, {}, '/notes')
+      await flushPromises()
+
+      await wrapper.find('[data-testid="delete-1"]').trigger('click')
+      await flushPromises()
+
+      expect(deleteCalled).toBe(false)
+      expect(wrapper.findAll('[data-testid="note-item"]')).toHaveLength(1)
+    })
+
+    it('shows an error and keeps the note when the DELETE fails', async () => {
+      authenticate()
+      mswServer.use(
+        http.get(`${API}/notes`, () =>
+          HttpResponse.json({
+            data: [noteFixture(1, { title: 'Stays' })],
+            next_cursor: null,
+            has_more: false,
+          }),
+        ),
+        http.delete(`${API}/notes/1`, () => HttpResponse.error()),
+      )
+
+      vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      const { wrapper } = await mountView(NotesView, {}, '/notes')
+      await flushPromises()
+      await wrapper.find('[data-testid="delete-1"]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.findAll('[data-testid="note-item"]')).toHaveLength(1)
+      expect(wrapper.find('[data-testid="load-error"]').exists()).toBe(true)
+    })
+  })
 })

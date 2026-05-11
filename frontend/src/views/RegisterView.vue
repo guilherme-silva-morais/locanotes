@@ -100,9 +100,13 @@ function handleError(err: unknown) {
             data-testid="password"
             type="password"
             autocomplete="new-password"
+            aria-describedby="register-password-hint"
             required
             maxlength="72"
           />
+          <p id="register-password-hint" data-testid="password-hint" class="hint">
+            {{ t('auth.register.password_hint') }}
+          </p>
           <p v-if="fieldErrors.password" data-testid="password-error" class="error">
             {{ fieldErrors.password.join(', ') }}
           </p>
@@ -226,6 +230,12 @@ input:focus {
 .error {
   color: var(--color-danger);
   font-size: var(--font-size-sm);
+  margin: var(--space-1) 0 0;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
   margin: var(--space-1) 0 0;
 }
 

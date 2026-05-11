@@ -20,6 +20,7 @@
       "title": "Cadastro",
       "email_label": "Email",
       "password_label": "Senha",
+      "password_hint": "Mínimo 8 caracteres, com pelo menos uma letra e um número.",
       "password_confirmation_label": "Confirmar senha",
       "submit": "Cadastrar",
       "submitting": "Cadastrando…",
@@ -37,8 +38,12 @@
     "loading": "Carregando…",
     "empty": "Você ainda não tem anotações.",
     "load_more": "Carregar mais",
+    "delete": "Excluir",
+    "deleting": "Excluindo…",
+    "confirm_delete": "Tem certeza que deseja excluir esta anotação?",
     "errors": {
-      "load": "Erro ao carregar anotações. Tente novamente."
+      "load": "Erro ao carregar anotações. Tente novamente.",
+      "delete": "Não foi possível excluir. Tente novamente."
     },
     "form": {
       "heading": "Nova anotação",

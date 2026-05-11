@@ -194,6 +194,8 @@ textarea {
   background: var(--color-input-bg);
   border-radius: var(--radius-md);
   width: 100%;
+  /* Reset HTML `size` attribute (defaults to 20 chars) so layout drives width. */
+  min-width: 0;
   resize: vertical;
   transition: border-color var(--transition-fast);
 }

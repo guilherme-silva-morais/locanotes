@@ -12,6 +12,7 @@ const nextCursor = ref<string | null>(null)
 const hasMore = ref(false)
 const loading = ref(false)
 const error = ref<string | null>(null)
+const deletingIds = ref<Set<number>>(new Set())
 
 async function fetchPage(cursor: string | null = null) {
   loading.value = true
@@ -41,6 +42,20 @@ function onNoteCreated(note: Note) {
   notes.value.unshift(note)
 }
 
+async function onDelete(note: Note) {
+  if (!window.confirm(t('notes.confirm_delete'))) return
+
+  deletingIds.value.add(note.id)
+  try {
+    await notesApi.destroy(note.id)
+    notes.value = notes.value.filter((n) => n.id !== note.id)
+  } catch {
+    error.value = t('notes.errors.delete')
+  } finally {
+    deletingIds.value.delete(note.id)
+  }
+}
+
 onMounted(() => fetchPage())
 </script>
 
@@ -51,22 +66,34 @@ onMounted(() => fetchPage())
     <section class="card">
       <h2 class="section-heading">{{ t('notes.title') }}</h2>
 
+      <p v-if="error" data-testid="load-error" class="error" role="alert">
+        {{ error }}
+      </p>
+
       <p v-if="loading && notes.length === 0" data-testid="loading" class="muted">
         {{ t('notes.loading') }}
       </p>
 
-      <p v-else-if="error" data-testid="load-error" class="error" role="alert">
-        {{ error }}
-      </p>
-
-      <p v-else-if="notes.length === 0" data-testid="empty" class="muted empty">
+      <p v-else-if="!error && notes.length === 0" data-testid="empty" class="muted empty">
         {{ t('notes.empty') }}
       </p>
 
-      <ul v-else class="notes-list" data-testid="notes-list">
+      <ul v-if="notes.length > 0" class="notes-list" data-testid="notes-list">
         <li v-for="note in notes" :key="note.id" class="note-item" data-testid="note-item">
-          <h3>{{ note.title }}</h3>
-          <p v-if="note.content">{{ note.content }}</p>
+          <div class="note-body">
+            <h3>{{ note.title }}</h3>
+            <p v-if="note.content">{{ note.content }}</p>
+          </div>
+          <button
+            type="button"
+            class="delete-button"
+            :data-testid="`delete-${note.id}`"
+            :disabled="deletingIds.has(note.id)"
+            :aria-label="t('notes.delete')"
+            @click="onDelete(note)"
+          >
+            {{ deletingIds.has(note.id) ? t('notes.deleting') : t('notes.delete') }}
+          </button>
         </li>
       </ul>
 
@@ -86,7 +113,7 @@ onMounted(() => fetchPage())
 
 <style scoped>
 .notes-view {
-  max-width: 40rem;
+  max-width: 64rem;
   margin: var(--space-8) auto;
   padding: 0 var(--space-4);
   display: flex;
@@ -118,7 +145,7 @@ onMounted(() => fetchPage())
 
 .empty {
   text-align: center;
-  padding: var(--space-6) 0;
+  padding: var(--space-10) 0;
 }
 
 .error {
@@ -126,14 +153,42 @@ onMounted(() => fetchPage())
 }
 
 .notes-list {
-  list-style: disc;
-  padding-left: var(--space-6);
+  list-style: none;
+  padding: 0;
   margin: 0;
 }
 
 .note-item {
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.note-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.delete-button {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-danger);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.delete-button:hover:not(:disabled) {
+  background: rgba(200, 51, 46, 0.08);
+  border-color: var(--color-danger);
+}
+
+.delete-button:disabled {
+  opacity: 0.55;
 }
 
 .note-item:last-child {
