@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (Ruby 3.4.9 + Postgres 18)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: locanotes
+          POSTGRES_PASSWORD: ci-password
+          POSTGRES_DB: locanotes_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      RAILS_ENV: test
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: locanotes
+      POSTGRES_PASSWORD: ci-password
+      POSTGRES_DB: locanotes_test
+      JWT_SECRET: ci-test-secret-not-used-in-production
+      FRONTEND_ORIGIN: http://localhost:5173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: backend
+          bundler-cache: true
+
+      - name: Prepare database
+        run: bin/rails db:prepare
+
+      - name: RuboCop (style)
+        run: bin/rubocop --no-color
+
+      - name: Brakeman (Rails static security analysis)
+        run: bin/brakeman --no-pager --quiet --no-summary
+
+      - name: bundler-audit (CVEs in dependencies)
+        run: bin/bundler-audit check --update
+
+      - name: RSpec
+        run: bin/rspec --format progress
+
+  frontend:
+    name: Frontend (Node 24)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Lint (ESLint + Oxlint)
+        run: npm run lint
+
+      - name: Unit tests (Vitest + MSW)
+        run: npm run test:unit -- --run
+
+      - name: Production build
+        run: npm run build
+
+  docker:
+    name: Docker compose build (smoke)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare env
+        run: cp .env.example .env
+
+      - name: Build images
+        run: docker compose build
