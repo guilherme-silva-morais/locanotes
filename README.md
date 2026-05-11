@@ -1,6 +1,6 @@
 # locanotes
 
-Sistema de anotações - teste técino Locaweb com autenticação JWT, paginação cursor, i18n pt-BR/en, modo claro/escuro e Docker-first dev workflow. Backend Rails 8.1 API-only + frontend Vue 3.5 SPA.
+Sistema de anotações - teste técnico Locaweb com autenticação JWT, paginação cursor, i18n pt-BR/en, modo claro/escuro e Docker-first dev workflow. Backend Rails 8.1 API-only + frontend Vue 3.5 SPA.
 
 ## Stack
 
