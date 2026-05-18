@@ -34,7 +34,7 @@ gem "erb", ">= 4.0.4.1"
 gem "net-imap", ">= 0.5.14"
 
 # JWT encode/decode for Bearer-token authentication
-gem "jwt", "~> 2.10"
+gem "jwt", "~> 3.2"
 
 # Authorization (per-record permission policies)
 gem "pundit", "~> 2.4"
